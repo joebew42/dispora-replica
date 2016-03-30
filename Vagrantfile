@@ -1,6 +1,10 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+def pod_count
+  ENV["pod_count"] && ENV["pod_count"].to_i || 2
+end
+
 Vagrant.configure("2") do |config|
 
   if Vagrant.has_plugin?('vagrant-puppet-install')
@@ -28,6 +32,19 @@ Vagrant.configure("2") do |config|
     puppet.options = "--verbose"
   end
 
+  (1..pod_count).each do |number|
+    config.vm.define "pod#{number}" do |dev|
+      dev.vm.hostname = "pod#{number}.diaspora.local"
+      dev.vm.network :private_network, ip: "192.168.11.#{4+number*2}"
+      dev.vm.synced_folder "src/", "/home/vagrant/diaspora_src/", create: true
+      dev.vm.provider "virtualbox" do |vb|
+        vb.memory = 2048
+      end
+
+      dev.vm.provision :hosts, :sync_hosts => true
+    end
+  end
+
   config.vm.define "development" do |dev|
     dev.vm.hostname = "development.diaspora.local"
     dev.vm.synced_folder "src/", "/home/vagrant/diaspora_src/", create: true
@@ -42,4 +59,9 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  if Vagrant.has_plugin?('vagrant-group')
+    config.group.groups = {
+      "testfarm" => (1..pod_count).map {|i| "pod#{i}"},
+    }
+  end
 end
