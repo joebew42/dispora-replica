@@ -35,10 +35,17 @@ Vagrant.configure("2") do |config|
   (1..pod_count).each do |number|
     config.vm.define "pod#{number}" do |dev|
       dev.vm.hostname = "pod#{number}.diaspora.local"
-      dev.vm.network :private_network, ip: "192.168.11.#{4+number*2}"
       dev.vm.synced_folder "src/", "/home/vagrant/diaspora_src/", create: true
-      dev.vm.provider "virtualbox" do |vb|
-        vb.memory = 2048
+
+      if Vagrant.has_plugin?('vagrant-lxc')
+        config.vm.box = "fgrehm/trusty64-lxc"
+        dev.vm.network :private_network, ip: "192.168.11.#{4+number*2}", lxc__bridge_name: "vlxcbr1"
+        dev.vm.provider :lxc
+      else
+        dev.vm.network :private_network, ip: "192.168.11.#{4+number*2}"
+        dev.vm.provider "virtualbox" do |vb|
+          vb.memory = 2048
+        end
       end
 
       dev.vm.provision :hosts, :sync_hosts => true
