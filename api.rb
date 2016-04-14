@@ -24,11 +24,22 @@ module Diaspora::Replica::API
 	  @logger
   end
 
-  def pipesh(cmd)
-    logger.info("Launching \"#{cmd}\"")
+  def pipesh(cmd, to_stdout=false)
+    pipesh_block(cmd) do |line|
+      logger.info(line)
+      puts(line) if to_stdout
+    end
+  end
+
+  def pipesh_log_and_stdout(cmd)
+    pipesh(cmd, true)
+  end
+
+  def pipesh_block(cmd, &print_string)
+    print_string.call("Launching \"#{cmd}\"")
     IO.popen (cmd) do |f|
       while str = f.gets
-        logger.info(str.chomp)
+        print_string.call(str.chomp)
       end
     end
     $?
@@ -62,10 +73,10 @@ module Diaspora::Replica::API
     !DiasporaApi::Client.new(pod_uri).nodeinfo_href.nil?
   end
 
-  def eye(cmd, stage_name, env=nil)
+  def eye(cmd, stage_name, env=nil, to_stdout=false)
     within_capistrano do
       env_cmd = "env #{env}" unless env.nil?
-      pipesh "bundle exec #{env_cmd} cap #{stage_name} diaspora:eye:#{cmd}"
+      pipesh "bundle exec #{env_cmd} cap #{stage_name} diaspora:eye:#{cmd}", to_stdout
       $?
     end
   end

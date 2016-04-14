@@ -65,7 +65,8 @@ node /^pod(\d+).diaspora.local$/ {
     sidekiq_concurrency => 5,
     sidekiq_retry       => 10,
     sidekiq_namespace   => 'diaspora',
-    enable_captcha      => false
+    enable_captcha      => false,
+    allow_username_change => true
   }
 }
 
