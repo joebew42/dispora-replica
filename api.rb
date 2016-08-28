@@ -9,6 +9,10 @@ end
 module Diaspora::Replica::API
   attr_writer :logdir
 
+  def pod_count
+    ENV["pod_count"] && ENV["pod_count"].to_i || 2
+  end
+
   def logdir
     @logdir || "/tmp"
   end
@@ -65,7 +69,7 @@ module Diaspora::Replica::API
 
   def machine_off?(name)
     within_diaspora_replica do
-      !`vagrant status #{name}`.include?("running")
+      !`env pod_count=#{pod_count} vagrant status #{name}`.include?("running")
     end
   end
 
