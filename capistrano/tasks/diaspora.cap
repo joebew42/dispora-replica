@@ -4,7 +4,7 @@ namespace :diaspora do
     task :load do
       on roles(:app) do
         within "#{current_path}" do
-          with rails_env: "#{fetch(:stage)}" do
+          with rails_env: "#{fetch(:rails_env)}" do
             execute :bundle, :exec, "eye load #{fetch(:eye_config)}"
           end
         end
@@ -16,7 +16,7 @@ namespace :diaspora do
       task cmd do
         on roles(:app) do
           within "#{current_path}" do
-            with rails_env: "#{fetch(:stage)}" do
+            with rails_env: "#{fetch(:rails_env)}" do
               execute :bundle, :exec, :eye, cmd, fetch(:eye_application)
             end
           end
@@ -28,7 +28,7 @@ namespace :diaspora do
     task :info do
       on roles(:app) do
         within "#{current_path}" do
-          with rails_env: "#{fetch(:stage)}" do
+          with rails_env: "#{fetch(:rails_env)}" do
             puts capture(:bundle, :exec, :eye, :info, fetch(:eye_application))
           end
         end
@@ -39,7 +39,7 @@ namespace :diaspora do
     task :quit do
       on roles(:app) do
         within "#{current_path}" do
-          with rails_env: "#{fetch(:stage)}" do
+          with rails_env: "#{fetch(:rails_env)}" do
             execute :bundle, :exec, :eye, :quit
           end
         end

@@ -4,3 +4,4 @@ gem 'capistrano'
 gem 'capistrano-rvm'
 gem 'capistrano-rails'
 gem 'capistrano-db-tasks', github: "cmrd-senya/capistrano-db-tasks", branch: "dump_task.2"
+gem 'capistrano-rails-collection', github: "zonkeynir/capistrano-rails-collection"

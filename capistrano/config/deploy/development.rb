@@ -14,7 +14,7 @@ ssh_options = {
 }
 
 set :rvm_type, :system
-set :rvm_ruby_version, '2.2@diaspora'
+set :rvm_ruby_version, '2.3.1@diaspora'
 
 set :rails_env, 'development'
 set :bundle_without, []

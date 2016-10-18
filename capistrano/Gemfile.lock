@@ -6,6 +6,13 @@ GIT
     capistrano-db-tasks (0.4)
       capistrano (>= 3.0.0)
 
+GIT
+  remote: git://github.com/zonkeynir/capistrano-rails-collection.git
+  revision: 919929ae447a9376938614ac1c91f83d6a687e0b
+  specs:
+    capistrano-rails-collection (0.0.3)
+      capistrano-rails (~> 1.1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -38,4 +45,8 @@ DEPENDENCIES
   capistrano
   capistrano-db-tasks!
   capistrano-rails
+  capistrano-rails-collection!
   capistrano-rvm
+
+BUNDLED WITH
+   1.11.2
