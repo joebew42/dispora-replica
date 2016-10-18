@@ -1,5 +1,5 @@
-require "diaspora_api"
 require "logger"
+require "json"
 
 module Diaspora
   module Replica
@@ -19,7 +19,7 @@ module Diaspora::Replica::API
 
   def logger
     return @logger unless @logger.nil?
-    file = File.new("#{logdir}/#{Time.now.utc.to_i}.log", "w")
+    file = File.new("#{logdir}/replica.#{Time.now.strftime "%Y%m%d%H%M%S"}.log", "w")
     file.sync = true
 	  @logger = Logger.new(file)
 #	  @logger = Logger.new(STDOUT)
@@ -74,7 +74,7 @@ module Diaspora::Replica::API
   end
 
   def diaspora_up?(pod_uri)
-    !DiasporaApi::Client.new(pod_uri).nodeinfo_href.nil?
+    !nodeinfo_href(pod_uri).nil?
   end
 
   def eye(cmd, stage_name, env=nil, to_stdout=false)
@@ -101,5 +101,26 @@ module Diaspora::Replica::API
       pipesh "bundle exec #{env_cmd} cap #{stage_name} deploy"
       $?
     end
+  end
+
+  def send_plain_request(request, poduri)
+    uri = URI.parse(poduri)
+    logger.debug("send_plain_request: poduri #{poduri} uri.host #{uri.host} uri.port #{uri.port}")
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = uri.scheme == "https"
+    http.request(request)
+  end
+
+  def nodeinfo_href(poduri)
+    response = send_plain_request(Net::HTTP::Get.new("/.well-known/nodeinfo"), poduri)
+    if response.code == "200"
+      JSON.parse(response.body)["links"]
+        .select {|res| res["rel"] == "http://nodeinfo.diaspora.software/ns/schema/1.0"}
+        .first["href"]
+    end
+  rescue Net::OpenTimeout
+  rescue SocketError
+  rescue Errno::EHOSTUNREACH
   end
 end
